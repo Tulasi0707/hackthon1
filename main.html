@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin: 12px 0;
+      cursor: pointer;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .orange { background-color: #f39c12; }
+    .green { background-color: #27ae60; }
+    .blue { background-color: #2980b9; }
+    .purple { background-color: #8e44ad; }
+
+    .profile, .notices {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .profile h2 {
+      margin-top: 0;
+    }
+
+    .notices h3 {
+      margin-top: 0;
+    }
+
+    .notices ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li>Dashboard</li>
+          <li>Student</li>
+          <li>Teacher</li>
+          <li>Academic</li>
+          <li>Attendance</li>
+          <li>Exam Schedule</li>
+          <li>Marks</li>
+          <li>Messages</li>
+          <li>Media</li>
+          <li>Online Exam</li>
+          <li>Chat</li>
+          <li>Books</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <div class="tabs">
+        <button class="tab orange">Teachers</button>
+        <button class="tab green">Books</button>
+        <button class="tab blue">Events</button>
+        <button class="tab purple">Calendar</button>
+      </div>
+
+      <section class="profile">
+        <h2>Tanujeswari</h2>
+        <p><strong>Username:</strong> 2100030064</p>
+        <p><strong>Email:</strong> 2100030064@kluniversity.in</p>
+        <p><strong>Phone:</strong> 9492430611</p>
+        <p><strong>Address:</strong> Vijayawada</p>
+      </section>
+
+      <section class="notices">
+        <h3>Notices</h3>
+        <ul>
+          <li>Blood Donation Day</li>
+          <li>Reunions 2016 Batch</li>
+          <li>Past Final Reunions</li>
+          <li>Russian Language</li>
+          <li>Second Semester Exam</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

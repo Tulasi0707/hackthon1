@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Admin Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef3f7;
+}
+.sidebar {
+    width: 260px;
+    background: #0f1e33;
+    color: white;
+    height: 100vh;
+    padding: 30px 20px;
+    position: fixed;
+}
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar li {
+    font-size: 18px;
+    margin: 20px 0;
+    cursor: pointer;
+}
+.sidebar li:hover { color: #4cc9f0; transform: translateX(5px); }
+.content {
+    margin-left: 260px;
+    padding: 40px;
+}
+.section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+.card {
+    background: #f7f7f7;
+    padding: 15px;
+    margin-top: 10px;
+    border-left: 5px solid #4cc9f0;
+    border-radius: 10px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+button {
+    padding: 7px 12px;
+    border: none;
+    background: #4cc9f0;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+}
+button:hover { opacity: 0.8; }
+input {
+    padding: 8px;
+    width: 250px;
+    margin: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul>
+        <li onclick="showSection('admins')">Admins</li>
+        <li onclick="showSection('teachers')">Teachers</li>
+        <li onclick="showSection('students')">Students</li>
+    </ul>
+</div>
+
+<div class="content">
+
+    <!-- ADMINS -->
+    <div id="admins" class="section">
+        <h2>Admins</h2>
+        <div id="adminList"></div>
+
+        <h3>Add Admin</h3>
+        <input id="adminName" placeholder="Admin Name" />
+        <input id="adminEmail" placeholder="Admin Email" />
+        <button onclick="addAdmin()">Add</button>
+    </div>
+
+    <!-- TEACHERS -->
+    <div id="teachers" class="section" style="display:none;">
+        <h2>Teachers</h2>
+        <div id="teacherList"></div>
+
+        <h3>Add Teacher</h3>
+        <input id="teacherName" placeholder="Teacher Name" />
+        <input id="teacherDept" placeholder="Department" />
+        <button onclick="addTeacher()">Add</button>
+    </div>
+
+    <!-- STUDENTS -->
+    <div id="students" class="section" style="display:none;">
+        <h2>Students</h2>
+        <div id="studentList"></div>
+
+        <h3>Add Student</h3>
+        <input id="studentName" placeholder="Student Name" />
+        <input id="studentBranch" placeholder="Branch" />
+        <button onclick="addStudent()">Add</button>
+    </div>
+
+</div>
+
+<script>
+// ---------------- DEFAULT DATA ----------------
+let admins = JSON.parse(localStorage.getItem("admins")) || [
+    {name: "Admin 1", email: "admin1@university.edu"},
+    {name: "Admin 2", email: "admin2@university.edu"}
+];
+
+let teachers = JSON.parse(localStorage.getItem("teachers")) || [
+    {name: "Anitha Sharma", dept: "CS Dept"},
+    {name: "Mahesh Kumar", dept: "IT Dept"},
+    {name: "Deepika Reddy", dept: "ECE Dept"}
+];
+
+let students = JSON.parse(localStorage.getItem("students")) || [
+    {name: "Rohan Kumar", branch: "CSE"},
+    {name: "Priya Sharma", branch: "CSE"},
+    {name: "Ankit Verma", branch: "ECE"}
+];
+
+// ---------------- SAVE & REFRESH ----------------
+function saveAll() {
+    localStorage.setItem("admins", JSON.stringify(admins));
+    localStorage.setItem("teachers", JSON.stringify(teachers));
+    localStorage.setItem("students", JSON.stringify(students));
+    loadUI();
+}
+
+// ---------------- DISPLAY UI ----------------
+function loadUI() {
+
+    // Admin List
+    document.getElementById("adminList").innerHTML =
+        admins.map((a, i) => `
+        <div class="card">
+            <strong>${a.name}</strong> – ${a.email}
+            <button onclick="removeAdmin(${i})" style="float:right;background:red;">Delete</button>
+        </div>`).join("");
+
+    // Teacher List
+    document.getElementById("teacherList").innerHTML =
+        teachers.map((t, i) => `
+        <div class="card">
+            <strong>${t.name}</strong> – ${t.dept}
+            <button onclick="removeTeacher(${i})" style="float:right;background:red;">Delete</button>
+        </div>`).join("");
+
+    // Student List
+    document.getElementById("studentList").innerHTML =
+        students.map((s, i) => `
+        <div class="card">
+            <strong>${s.name}</strong> – ${s.branch}
+            <button onclick="removeStudent(${i})" style="float:right;background:red;">Delete</button>
+        </div>`).join("");
+}
+
+loadUI();
+
+// ---------------- ADD FUNCTIONS ----------------
+function addAdmin() {
+    admins.push({name: adminName.value, email: adminEmail.value});
+    adminName.value = adminEmail.value = "";
+    saveAll();
+}
+function addTeacher() {
+    teachers.push({name: teacherName.value, dept: teacherDept.value});
+    teacherName.value = teacherDept.value = "";
+    saveAll();
+}
+function addStudent() {
+    students.push({name: studentName.value, branch: studentBranch.value});
+    studentName.value = studentBranch.value = "";
+    saveAll();
+}
+
+// ---------------- REMOVE FUNCTIONS ----------------
+function removeAdmin(i) { admins.splice(i,1); saveAll(); }
+function removeTeacher(i) { teachers.splice(i,1); saveAll(); }
+function removeStudent(i) { students.splice(i,1); saveAll(); }
+
+// ---------------- SECTION SWITCH ----------------
+function showSection(sec) {
+    document.getElementById("admins").style.display = "none";
+    document.getElementById("teachers").style.display = "none";
+    document.getElementById("students").style.display = "none";
+
+    document.getElementById(sec).style.display = "block";
+}
+</script>
+
+</body>
+</html>

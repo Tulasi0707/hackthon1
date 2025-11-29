@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Dashboard</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #eef2f3;
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 250px;
+        background-color: #0f1e33;
+        color: white;
+        height: 100vh;
+        padding: 25px;
+        position: fixed;
+    }
+
+    .sidebar h2 {
+        padding-bottom: 10px;
+        text-align: center;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    .sidebar li {
+        font-size: 18px;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .sidebar li:hover {
+        color: #4cc9f0;
+        transform: translateX(5px);
+    }
+
+    /* Content area */
+    .content {
+        margin-left: 260px;
+        padding: 30px;
+        width: 100%;
+    }
+
+    .section {
+        display: none;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    h2, h3 {
+        color: #0f1e33;
+    }
+
+    .card {
+        background: #f7f7f7;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 10px;
+        border-left: 5px solid #4cc9f0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th, table td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background: #eef7ff;
+        text-align: left;
+    }
+
+</style>
+
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Teacher</h2>
+
+    <ul>
+        <li data-section="home">Home</li>
+        <li data-section="students">Class Students</li>
+        <li data-section="attendance">Attendance</li>
+        <li data-section="marks">Marks</li>
+        <li data-section="messages">Messages</li>
+    </ul>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <!-- HOME -->
+    <div id="home" class="section active">
+        <h2>Welcome, Teacher!</h2>
+
+        <div class="card">
+            <h3>Quick Summary</h3>
+            <p><strong>Name:</strong> Mrs. Anitha Sharma</p>
+            <p><strong>Subject:</strong> Computer Science (Data Structures)</p>
+            <p><strong>Experience:</strong> 8 Years</p>
+            <p><strong>Class Advisor:</strong> B.Tech CSE – Section A</p>
+        </div>
+    </div>
+
+    <!-- CLASS STUDENTS -->
+<div id="students" class="section">
+    <h2>Class Students</h2>
+
+    <div class="card">
+        <h3>B.Tech CSE – Section A</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Branch</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr><td>Rohan Kumar</td><td>21A91A05A1</td><td>CSE</td></tr>
+                <tr><td>Priya Sharma</td><td>21A91A05A2</td><td>CSE</td></tr>
+                <tr><td>Akash Varma</td><td>21A91A05A3</td><td>CSE</td></tr>
+                <tr><td>Harika Devi</td><td>21A91A05A4</td><td>CSE</td></tr>
+                <tr><td>Sunil Reddy</td><td>21A91A05A5</td><td>CSE</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- ATTENDANCE -->
+<div id="attendance" class="section">
+    <h2>Attendance Management</h2>
+
+    <div class="card">
+        <h3>Mark Today's Attendance – Data Structures</h3>
+
+        <form id="attendanceForm">
+            <table>
+                <tr>
+                    <th>Student</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                </tr>
+
+                <tr><td>Rohan Kumar</td><td><input type="radio" name="rohan" value="P" required></td><td><input type="radio" name="rohan" value="A"></td></tr>
+                <tr><td>Priya Sharma</td><td><input type="radio" name="priya" value="P" required></td><td><input type="radio" name="priya" value="A"></td></tr>
+                <tr><td>Akash Verma</td><td><input type="radio" name="akash" value="P" required></td><td><input type="radio" name="akash" value="A"></td></tr>
+                <tr><td>Harika Devi</td><td><input type="radio" name="harika" value="P" required></td><td><input type="radio" name="harika" value="A"></td></tr>
+                <tr><td>Sunil Reddy</td><td><input type="radio" name="sunil" value="P" required></td><td><input type="radio" name="sunil" value="A"></td></tr>
+
+            </table>
+
+            <button type="submit" 
+                style="margin-top:20px; padding:10px 20px; background:#4cc9f0; color:white; border:none; border-radius:8px; cursor:pointer;">
+                Submit Attendance
+            </button>
+        </form>
+    </div>
+
+    <div class="card" id="attendanceResult" style="display:none; margin-top:15px;">
+        <h3>Attendance Summary</h3>
+        <p id="presentCount"></p>
+        <p id="absentCount"></p>
+    </div>
+</div>
+
+<script>
+document.getElementById("attendanceForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let fields = ["rohan", "priya", "akash", "harika", "sunil"];
+    let present = 0, absent = 0;
+
+    fields.forEach(name => {
+        let val = document.querySelector(`input[name="${name}"]:checked`).value;
+        if(val === "P") present++;
+        else absent++;
+    });
+
+    document.getElementById("presentCount").textContent = "Total Present: " + present;
+    document.getElementById("absentCount").textContent = "Total Absent: " + absent;
+
+    document.getElementById("attendanceResult").style.display = "block";
+});
+</script>
+
+   <!-- MARKS ENTRY SYSTEM -->
+<div id="marks" class="section">
+    <h2>Marks Management</h2>
+
+    <div class="card">
+        <h3>Enter Internal Marks – Data Structures</h3>
+
+        <form id="marksForm">
+
+            <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+                <tr style="background:#eef6fb;">
+                    <th align="left" style="padding:10px;">Student</th>
+                    <th>Assignments (10)</th>
+                    <th>Home Assignments (5)</th>
+                    <th>Lab Exam (10)</th>
+                    <th>Mid-1 (15)</th>
+                    <th>Mid-2 (15)</th>
+                    <th>Total (Auto)</th>
+                </tr>
+
+                <!-- Student Rows -->
+                <tr>
+                    <td>Rohan Kumar</td>
+                    <td><input type="number" name="roh_assign" max="10" min="0" required></td>
+                    <td><input type="number" name="roh_home" max="5" min="0" required></td>
+                    <td><input type="number" name="roh_lab" max="10" min="0" required></td>
+                    <td><input type="number" name="roh_mid1" max="15" min="0" required></td>
+                    <td><input type="number" name="roh_mid2" max="15" min="0" required></td>
+                    <td id="roh_total"><strong>0</strong></td>
+                </tr>
+
+                <tr>
+                    <td>Priya Sharma</td>
+                    <td><input type="number" name="pri_assign" max="10" min="0" required></td>
+                    <td><input type="number" name="pri_home" max="5" min="0" required></td>
+                    <td><input type="number" name="pri_lab" max="10" min="0" required></td>
+                    <td><input type="number" name="pri_mid1" max="15" min="0" required></td>
+                    <td><input type="number" name="pri_mid2" max="15" min="0" required></td>
+                    <td id="pri_total"><strong>0</strong></td>
+                </tr>
+
+                <tr>
+                    <td>Akash Varma</td>
+                    <td><input type="number" name="aka_assign" max="10" min="0" required></td>
+                    <td><input type="number" name="aka_home" max="5" min="0" required></td>
+                    <td><input type="number" name="aka_lab" max="10" min="0" required></td>
+                    <td><input type="number" name="aka_mid1" max="15" min="0" required></td>
+                    <td><input type="number" name="aka_mid2" max="15" min="0" required></td>
+                    <td id="aka_total"><strong>0</strong></td>
+                </tr>
+
+                <tr>
+                    <td>Harika Devi</td>
+                    <td><input type="number" name="hari_assign" max="10" min="0" required></td>
+                    <td><input type="number" name="hari_home" max="5" min="0" required></td>
+                    <td><input type="number" name="hari_lab" max="10" min="0" required></td>
+                    <td><input type="number" name="hari_mid1" max="15" min="0" required></td>
+                    <td><input type="number" name="hari_mid2" max="15" min="0" required></td>
+                    <td id="hari_total"><strong>0</strong></td>
+                </tr>
+
+                <tr>
+                    <td>Sunil Reddy</td>
+                    <td><input type="number" name="sun_assign" max="10" min="0" required></td>
+                    <td><input type="number" name="sun_home" max="5" min="0" required></td>
+                    <td><input type="number" name="sun_lab" max="10" min="0" required></td>
+                    <td><input type="number" name="sun_mid1" max="15" min="0" required></td>
+                    <td><input type="number" name="sun_mid2" max="15" min="0" required></td>
+                    <td id="sun_total"><strong>0</strong></td>
+                </tr>
+
+            </table>
+
+            <button type="submit" style="margin-top:20px; padding:10px 20px; background:#4cc9f0; color:white; border:none; border-radius:8px; cursor:pointer;">
+                Save Marks
+            </button>
+
+        </form>
+    </div>
+
+    <div class="card" id="marksResult" style="display:none;">
+        <h3>Marks Saved Successfully</h3>
+        <p>All totals updated.</p>
+    </div>
+</div>
+
+<script>
+document.getElementById("marksForm").addEventListener("input", function () {
+    const students = [
+        ["roh", "roh_total"],
+        ["pri", "pri_total"],
+        ["aka", "aka_total"],
+        ["hari", "hari_total"],
+        ["sun", "sun_total"]
+    ];
+
+    students.forEach(stu => {
+        let prefix = stu[0];
+        let total = 
+            Number(document.querySelector(`input[name="${prefix}_assign"]`).value || 0) +
+            Number(document.querySelector(`input[name="${prefix}_home"]`).value || 0) +
+            Number(document.querySelector(`input[name="${prefix}_lab"]`).value || 0) +
+            Number(document.querySelector(`input[name="${prefix}_mid1"]`).value || 0) +
+            Number(document.querySelector(`input[name="${prefix}_mid2"]`).value || 0);
+
+        document.getElementById(stu[1]).innerHTML = `<strong>${total}</strong>`;
+    });
+});
+
+document.getElementById("marksForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    document.getElementById("marksResult").style.display = "block";
+});
+</script>
+
+<!-- MESSAGES -->
+<div id="messages" class="section">
+    <h2>College Announcements</h2>
+
+    <div class="card">
+        <h3>Important Notifications</h3>
+
+        <ul style="line-height: 1.9;">
+
+            <!-- 1. INVIGILATION DUTY -->
+            <li>
+                <strong>Exam Cell:</strong>  
+                “Invigilation duty assigned for Mid-Term Exams.”  
+                <button onclick="toggleDoc('invigilationDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Details
+                </button>
+
+                <div id="invigilationDoc" class="docBox">
+                    <h4>Invigilation Duty Details</h4>
+                    <p><strong>Date:</strong> March 14th, 2025</p>
+                    <p><strong>Time:</strong> 10:00 AM – 12:00 PM</p>
+                    <p><strong>Reporting Time:</strong> 9:30 AM</p>
+                    <p><strong>Room Number:</strong> 302</p>
+                    <p><strong>Subject:</strong> Data Structures Mid-Term</p>
+                    <p><strong>Duty Type:</strong> Primary Invigilator</p>
+                </div>
+            </li>
+
+            <!-- 2. STAFF MEETING -->
+            <li>
+                <strong>Principal Office:</strong>  
+                “Staff meeting scheduled on March 10th at 3 PM.”  
+                <button onclick="toggleDoc('meetingDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Circular
+                </button>
+
+                <div id="meetingDoc" class="docBox">
+                    <h4>Staff Meeting Circular</h4>
+                    <p><strong>Date:</strong> March 10th, 2025</p>
+                    <p><strong>Time:</strong> 3:00 PM</p>
+                    <p><strong>Venue:</strong> Conference Hall</p>
+                    <p><strong>Agenda:</strong></p>
+                    <ul>
+                        <li>Mid-Term Exam Planning</li>
+                        <li>Attendance Verification</li>
+                        <li>Result Processing Workflow</li>
+                        <li>Campus Maintenance Updates</li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- 3. INTERNAL MARKS SUBMISSION -->
+            <li>
+                <strong>Department HOD:</strong>  
+                “Submit internal marks before March 12th.”  
+                <button onclick="toggleDoc('marksDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Format
+                </button>
+
+                <div id="marksDoc" class="docBox">
+                    <h4>Internal Marks Submission</h4>
+                    <p><strong>Deadline:</strong> March 12th, 2025</p>
+                    <p><strong>Required Files:</strong></p>
+                    <ul>
+                        <li>Assignment Marks</li>
+                        <li>Lab Internal Marks</li>
+                        <li>Mid-1 & Mid-2 Marks</li>
+                        <li>Attendance Report</li>
+                    </ul>
+                    <p><strong>Submission Mode:</strong> Department Portal Upload</p>
+                </div>
+            </li>
+
+            <!-- 4. CAMPUS MAINTENANCE -->
+            <li>
+                <strong>Admin:</strong>  
+                “Campus maintenance is scheduled this weekend.”  
+                <button onclick="toggleDoc('maintenanceDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Notice
+                </button>
+
+                <div id="maintenanceDoc" class="docBox">
+                    <h4>Maintenance Notice</h4>
+                    <p><strong>Maintenance Dates:</strong> March 9th – March 10th</p>
+                    <p><strong>Closed Areas:</strong> Lab-1, Lab-2, Mechanical Workshop</p>
+                    <p><strong>Reason:</strong> Electrical rewiring & system upgrades</p>
+                </div>
+            </li>
+
+            <!-- 5. QUESTION PAPER DEADLINE -->
+            <li>
+                <strong>Exam Controller:</strong>  
+                “Question paper submission deadline: March 8th.”  
+                <button onclick="toggleDoc('qpDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Instructions
+                </button>
+
+                <div id="qpDoc" class="docBox">
+                    <h4>Question Paper Submission</h4>
+                    <p><strong>Deadline:</strong> March 8th, 4:00 PM</p>
+                    <p><strong>Format:</strong> PDF only</p>
+                    <p><strong>Required Components:</strong></p>
+                    <ul>
+                        <li>5 Sets (A/B/C/D/E)</li>
+                        <li>CO Mapping Sheet</li>
+                        <li>Internal Blueprint</li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- 6. INFOSYS TRAINING -->
+            <li>
+                <strong>Training & Placement Cell:</strong>  
+                “Infosys training session on March 15th.”  
+                <button onclick="toggleDoc('trainingDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Details
+                </button>
+
+                <div id="trainingDoc" class="docBox">
+                    <h4>Infosys Training Session</h4>
+                    <p><strong>Date:</strong> March 15th, 2025</p>
+                    <p><strong>Time:</strong> 2:00 PM – 5:00 PM</p>
+                    <p><strong>Venue:</strong> Seminar Hall-2</p>
+                    <p><strong>Topics:</strong></p>
+                    <ul>
+                        <li>Aptitude Training</li>
+                        <li>Logical Reasoning</li>
+                        <li>Technical Round Prep</li>
+                        <li>HR Interview Tips</li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- 7. HOLIDAY NOTICE -->
+            <li>
+                <strong>College Circular:</strong>  
+                “Holiday declared on March 11th.”  
+                <button onclick="toggleDoc('holidayDoc')" 
+                        style="margin-left:10px; padding:4px 10px; cursor:pointer;">
+                    View Circular
+                </button>
+
+                <div id="holidayDoc" class="docBox">
+                    <h4>Holiday Circular</h4>
+                    <p><strong>Date:</strong> March 11th, 2025</p>
+                    <p><strong>Occasion:</strong> Festival Celebration</p>
+                    <p><strong>Note:</strong> Rescheduled classes will be announced later.</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- CSS for Boxes -->
+<style>
+.docBox {
+    display: none;
+    background: #f4f9ff;
+    border-left: 4px solid #4cc9f0;
+    padding: 12px;
+    margin: 10px 0 15px 0;
+    border-radius: 8px;
+}
+</style>
+
+<!-- JS for Toggles -->
+<script>
+function toggleDoc(id) {
+    const box = document.getElementById(id);
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
+</script>
+<script>
+// Load students dynamically
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Load Students
+    const students = JSON.parse(localStorage.getItem("students")) || [];
+    
+    let studentHTML = "";
+    students.forEach(s => {
+        studentHTML += `
+            <tr>
+                <td>${s.name}</td>
+                <td>${s.roll || "Not Assigned"}</td>
+                <td>${s.branch}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("student-table-body").innerHTML = studentHTML;
+
+    // Load Teacher Info (matched by login)
+    const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    const teachers = JSON.parse(localStorage.getItem("teachers")) || [];
+
+    const teacherData = teachers.find(t => t.email === loggedUser.email);
+
+    if (teacherData) {
+        document.getElementById("teacher-name").textContent = teacherData.name;
+        document.getElementById("teacher-dept").textContent = teacherData.dept;
+        document.getElementById("teacher-exp").textContent = teacherData.exp || "Not Updated";
+    }
+});
+</script>
+
+
+
+<script>
+    const menuItems = document.querySelectorAll(".sidebar li");
+    const sections = document.querySelectorAll(".section");
+
+    menuItems.forEach(item => {
+        item.addEventListener("click", () => {
+            sections.forEach(sec => sec.classList.remove("active"));
+            const target = item.getAttribute("data-section");
+            document.getElementById(target).classList.add("active");
+        });
+    });
+</script>
+
+</body>
+</html>

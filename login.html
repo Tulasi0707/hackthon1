@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Login - Mini ERP</title>
+<style>
+  /* Glass theme */
+  :root{--bg1:#0b2a4a;--bg2:#10325a;--glass:rgba(255,255,255,0.12);}
+  *{box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+  body{min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#fff;}
+  .card{width:380px;padding:28px;border-radius:14px;background:var(--glass);backdrop-filter: blur(12px);
+    box-shadow:0 8px 30px rgba(2,6,23,0.5);border:1px solid rgba(255,255,255,0.06);position:relative;}
+  .logo{width:56px;height:56px;border-radius:12px;background:rgba(255,255,255,0.08);display:block;margin:0 auto 12px}
+  h2{text-align:center;margin:6px 0 6px}
+  .sub{text-align:center;color:rgba(255,255,255,0.85);margin-bottom:18px;font-size:14px}
+  label{display:block;text-align:left;margin:8px 0 6px;font-size:13px}
+  input{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.06);
+    color:#fff;font-size:14px}
+  .row{display:flex;gap:10px;margin-top:12px}
+  .btn{width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(90deg,#00c3ff,#2a9cff);
+    color:#062; font-weight:700; cursor:pointer;font-size:15px}
+  .link{text-align:center;margin-top:12px;color:#bdefff}
+  .small{font-size:13px;color:rgba(255,255,255,0.8)}
+  .captcha-box{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;
+    background:rgba(255,255,255,0.18);margin-bottom:10px;color:#000;font-weight:700;}
+  .refresh{background:transparent;border:none;cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo" style="margin-bottom:6px"></div>
+  <h2>Login to Mini ERP</h2>
+  <p class="sub">Glass theme • Role-based dashboards</p>
+
+  <form id="loginForm">
+    <label>Email</label>
+    <input id="email" type="email" required placeholder="you@demo.com">
+
+    <label>Password</label>
+    <input id="password" type="password" required placeholder="pass123">
+
+    <label>Captcha</label>
+    <div class="captcha-box">
+      <span id="captcha-text">00000</span>
+      <button type="button" class="refresh" onclick="generateCaptcha()">↻</button>
+    </div>
+    <input id="captcha-input" placeholder="Enter captcha" required>
+
+    <div class="row">
+      <button class="btn" type="submit">Login</button>
+    </div>
+  </form>
+
+  <p class="link">No account? <a href="register.html" style="color:#e6faff">Register</a></p>
+  <p class="small" style="margin-top:6px">Demo accounts: student / teacher / admin / super (all pass123)</p>
+</div>
+
+<script>
+/* --- Initialize demo users + sample data if not present --- */
+function seedDemoData(){
+  const demoUsers = [
+    {name:"Student Demo",email:"student@demo.com",password:"pass123",role:"student"},
+    {name:"Teacher Demo",email:"teacher@demo.com",password:"pass123",role:"teacher"},
+    {name:"Admin Demo",email:"admin@demo.com",password:"pass123",role:"admin"},
+    {name:"Super Demo",email:"super@demo.com",password:"pass123",role:"superadmin"}
+  ];
+  demoUsers.forEach(u=>{
+    if(!localStorage.getItem(u.email)){
+      localStorage.setItem(u.email, JSON.stringify(u));
+    }
+  });
+  // sample marks & attendance
+  if(!localStorage.getItem('marks')){
+    const marks = {
+      "student@demo.com": { "Data Structures":92,"OS":85,"Networks":88,"Python":94,"Discrete Maths":81 }
+    };
+    localStorage.setItem('marks', JSON.stringify(marks));
+  }
+  if(!localStorage.getItem('attendance')){
+    const att = { "student@demo.com": {total:180,present:160,absent:20} };
+    localStorage.setItem('attendance', JSON.stringify(att));
+  }
+  if(!localStorage.getItem('messages')){
+    const msgs = { "student@demo.com":[{from:"Teacher",text:"Submit assignment by Friday"}] };
+    localStorage.setItem('messages', JSON.stringify(msgs));
+  }
+}
+seedDemoData();
+
+/* --- Captcha --- */
+let generatedCaptcha="";
+function generateCaptcha(){
+  generatedCaptcha = Math.floor(10000 + Math.random()*90000).toString();
+  document.getElementById('captcha-text').textContent = generatedCaptcha;
+}
+window.onload = generateCaptcha;
+
+/* --- Login --- */
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  const captchaInput = document.getElementById('captcha-input').value.trim();
+
+  if(captchaInput !== generatedCaptcha){ alert('Incorrect captcha'); generateCaptcha(); return; }
+  const stored = localStorage.getItem(email);
+  if(!stored){ alert('User not found'); return; }
+  const user = JSON.parse(stored);
+  if(user.password !== password){ alert('Incorrect password'); return; }
+
+  localStorage.setItem('loggedInUser', JSON.stringify(user));
+
+  // redirect based on role
+  if(user.role==='student') window.location.href = 'student-dashboard.html';
+  else if(user.role==='teacher') window.location.href = 'teacher-dashboard.html';
+  else if(user.role==='admin') window.location.href = 'admin-dashboard.html';
+  else if(user.role==='superadmin') window.location.href = 'superadmin-dashboard.html';
+  else window.location.href = 'student-dashboard.html';
+});
+</script>
+</body>
+</html>
