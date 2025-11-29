@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #eef2f3;
+        display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+        width: 250px;
+        background-color: #0f1e33;
+        color: white;
+        height: 100vh;
+        padding: 25px;
+        position: fixed;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #4cc9f0;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    .sidebar li {
+        font-size: 18px;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .sidebar li:hover {
+        color: #4cc9f0;
+        transform: translateX(5px);
+    }
+
+    /* CONTENT MAIN AREA */
+    .content {
+        margin-left: 260px;
+        padding: 30px;
+        width: 100%;
+    }
+
+    .section {
+        display: none;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    h2, h3 {
+        color: #0f1e33;
+    }
+
+    .card {
+        background: #f7f7f7;
+        padding: 18px;
+        margin-top: 15px;
+        border-radius: 10px;
+        border-left: 5px solid #4cc9f0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table th, table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+
+    table th {
+        background-color: #e9f4ff;
+        color: #0f1e33;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>ADMIN</h2>
+
+    <ul>
+        <li data-section="home">Home</li>
+        <li data-section="students">Manage Students</li>
+        <li data-section="teachers">Manage Teachers</li>
+        <li data-section="courses">Manage Courses</li>
+        <li data-section="timetable">Timetable</li>
+        <li data-section="announcements">Announcements</li>
+        <li data-section="reports">Reports</li>
+    </ul>
+</div>
+
+<!-- CONTENT AREA -->
+<div class="content">
+
+    <!-- HOME SECTION -->
+    <section id="home" class="section active">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, System Administrator!</p>
+
+        <div class="card">
+            <h3>Quick Summary</h3>
+            <p><strong>Name:</strong> Admin (System Admin)</p>
+            <p><strong>Role:</strong> Academic & System Administrator</p>
+            <p><strong>Institute:</strong> KL University</p>
+            <p><strong>Pending Approvals:</strong> 3 Requests</p>
+        </div>
+    </section>
+
+    <!-- MANAGE STUDENTS -->
+<section id="students" class="section">
+    <h2>Manage Students</h2>
+
+    <!-- Student List -->
+    <div class="card">
+        <h3>Student List</h3>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Branch</th>
+                    <th>Year</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic Rows Insert Here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Student Form -->
+    <div class="card">
+        <h3>Add New Student</h3>
+
+        <form id="addStudentForm">
+            <label>Name:</label><br>
+            <input type="text" id="stName" required><br><br>
+
+            <label>Roll No:</label><br>
+            <input type="text" id="stRoll" required><br><br>
+
+            <label>Branch:</label><br>
+            <input type="text" id="stBranch" value="CSE" required><br><br>
+
+            <label>Year:</label><br>
+            <select id="stYear">
+                <option>1st</option>
+                <option>2nd</option>
+                <option>3rd</option>
+                <option>4th</option>
+            </select><br><br>
+
+            <label>Status:</label><br>
+            <select id="stStatus">
+                <option>Active</option>
+                <option>Inactive</option>
+            </select><br><br>
+
+            <button type="submit" style="
+                    background:#4cc9f0; 
+                    color:white; 
+                    padding:10px 20px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;">
+                Add Student
+            </button>
+        </form>
+    </div>
+
+    <!-- View Student Popup -->
+    <div id="viewModal" style="
+        display:none; 
+        position:fixed; 
+        top:0; left:0;
+        width:100%; height:100%;
+        background: rgba(0,0,0,0.5);
+        justify-content:center;
+        align-items:center;">
+        
+        <div style="
+            background:white; 
+            padding:20px; 
+            width:400px;
+            border-radius:10px;">
+            <h3>Student Details</h3>
+            <p id="modalContent"></p>
+            <button onclick="closeModal()" style="
+                    padding:8px 15px; 
+                    background:#333; 
+                    color:white;
+                    border:none;
+                    border-radius:6px;
+                    cursor:pointer;">
+                Close
+            </button>
+        </div>
+    </div>
+
+</section>
+
+<script>
+    // Load students from localStorage
+    let students = JSON.parse(localStorage.getItem("students")) || [
+        {name:"Rohan Kumar", roll:"21A91A05A1", branch:"CSE", year:"2nd", status:"Active"},
+        {name:"Priya Sharma", roll:"21A91A05A2", branch:"CSE", year:"2nd", status:"Active"},
+        {name:"Akash Varma", roll:"21A91A05A3", branch:"CSE", year:"2nd", status:"Inactive"}
+    ];
+
+    function saveStudents(){
+        localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    function loadStudents(){
+        const tbody = document.querySelector("#studentTable tbody");
+        tbody.innerHTML = "";
+
+        students.forEach((st, index) => {
+            const row = `
+                <tr>
+                    <td>${st.name}</td>
+                    <td>${st.roll}</td>
+                    <td>${st.branch}</td>
+                    <td>${st.year}</td>
+                    <td>${st.status}</td>
+                    <td>
+                        <button onclick="viewStudent(${index})"
+                            style="padding:5px 10px;border:none;background:#4cc9f0;color:white;border-radius:6px;cursor:pointer;">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // Add new student
+    document.getElementById("addStudentForm").addEventListener("submit", function(e){
+        e.preventDefault();
+
+        let newStudent = {
+            name: document.getElementById("stName").value,
+            roll: document.getElementById("stRoll").value,
+            branch: document.getElementById("stBranch").value,
+            year: document.getElementById("stYear").value,
+            status: document.getElementById("stStatus").value
+        };
+
+        students.push(newStudent);
+        saveStudents();
+        loadStudents();
+
+        alert("Student Added Successfully!");
+
+        this.reset();
+    });
+
+    // View detailed student info
+    function viewStudent(index){
+        let st = students[index];
+        document.getElementById("modalContent").innerHTML = `
+            <strong>Name:</strong> ${st.name}<br>
+            <strong>Roll No:</strong> ${st.roll}<br>
+            <strong>Branch:</strong> ${st.branch}<br>
+            <strong>Year:</strong> ${st.year}<br>
+            <strong>Status:</strong> ${st.status}
+        `;
+        document.getElementById("viewModal").style.display = "flex";
+    }
+
+    function closeModal(){
+        document.getElementById("viewModal").style.display = "none";
+    }
+
+    loadStudents();
+</script>
+
+
+    <!-- MANAGE TEACHERS -->
+<section id="teachers" class="section">
+    <h2>Manage Teachers</h2>
+
+    <!-- Teacher List -->
+    <div class="card">
+        <h3>Faculty List</h3>
+
+        <table id="teacherTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Experience</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- Dynamic Teacher Rows go here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Teacher Form -->
+    <div class="card">
+        <h3>Add New Teacher</h3>
+
+        <form id="addTeacherForm">
+
+            <label>Name:</label><br>
+            <input type="text" id="tName" required><br><br>
+
+            <label>Department:</label><br>
+            <input type="text" id="tDept" placeholder="CSE / ECE / Math" required><br><br>
+
+            <label>Experience (Years):</label><br>
+            <input type="number" id="tExp" required><br><br>
+
+            <label>Salary (₹ per month):</label><br>
+            <input type="number" id="tSalary" required><br><br>
+
+            <label>Status:</label><br>
+            <select id="tStatus">
+                <option>Active</option>
+                <option>Inactive</option>
+            </select><br><br>
+
+            <button type="submit" 
+                style="background:#4cc9f0;color:white;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;">
+                Add Teacher
+            </button>
+        </form>
+    </div>
+
+    <!-- Teacher Details Popup -->
+    <div id="teacherModal" style="
+        display:none; 
+        position:fixed; top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.4);
+        justify-content:center;
+        align-items:center;">
+
+        <div style="background:white;padding:25px;border-radius:10px;width:380px;">
+            <h3>Teacher Details</h3>
+            <p id="teacherModalContent"></p>
+
+            <button onclick="closeTeacherModal()" style="
+                padding:8px 15px;background:#333;color:white;
+                border:none;border-radius:6px;cursor:pointer;">
+                Close
+            </button>
+        </div>
+    </div>
+
+</section>
+
+<script>
+    // Load teacher data from localStorage OR defaults
+    let teachers = JSON.parse(localStorage.getItem("teachers")) || [
+        {name:"Mrs. Anitha Sharma", dept:"Computer Science", exp:"8", salary:"75000", status:"Active"},
+        {name:"Mr. Mahesh Kumar", dept:"Networks", exp:"5", salary:"60000", status:"Active"},
+        {name:"Dr. Sandeep Reddy", dept:"Mathematics", exp:"12", salary:"90000", status:"Active"},
+        {name:"Mrs. Keerthi Devi", dept:"Python Programming", exp:"4", salary:"55000", status:"Inactive"}
+    ];
+
+    function saveTeachers(){
+        localStorage.setItem("teachers", JSON.stringify(teachers));
+    }
+
+    function loadTeachers(){
+        const tbody = document.querySelector("#teacherTable tbody");
+        tbody.innerHTML = "";
+
+        teachers.forEach((t, index) => {
+            const row = `
+                <tr>
+                    <td>${t.name}</td>
+                    <td>${t.dept}</td>
+                    <td>${t.exp} Years</td>
+                    <td>₹ ${t.salary}</td>
+                    <td>${t.status}</td>
+                    <td>
+                        <button onclick="viewTeacher(${index})"
+                            style="padding:6px 10px;background:#4cc9f0;
+                                   color:white;border:none;border-radius:6px;cursor:pointer;">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // Add new teacher
+    document.getElementById("addTeacherForm").addEventListener("submit", function(e){
+        e.preventDefault();
+
+        let newTeacher = {
+            name: document.getElementById("tName").value,
+            dept: document.getElementById("tDept").value,
+            exp: document.getElementById("tExp").value,
+            salary: document.getElementById("tSalary").value,
+            status: document.getElementById("tStatus").value
+        };
+
+        teachers.push(newTeacher);
+        saveTeachers();
+        loadTeachers();
+
+        alert("Teacher Added Successfully!");
+
+        this.reset();
+    });
+
+    // View Teacher Details popup
+    function viewTeacher(index){
+        let t = teachers[index];
+
+        document.getElementById("teacherModalContent").innerHTML = `
+            <strong>Name:</strong> ${t.name}<br>
+            <strong>Department:</strong> ${t.dept}<br>
+            <strong>Experience:</strong> ${t.exp} Years<br>
+            <strong>Salary:</strong> ₹ ${t.salary}<br>
+            <strong>Status:</strong> ${t.status}
+        `;
+
+        document.getElementById("teacherModal").style.display = "flex";
+    }
+
+    function closeTeacherModal(){
+        document.getElementById("teacherModal").style.display = "none";
+    }
+
+    loadTeachers();
+</script>
+<!-- MANAGE COURSES -->
+<section id="courses" class="section">
+    <h2>Manage Courses</h2>
+
+    <!-- Course List -->
+    <div class="card">
+        <h3>Course List</h3>
+
+        <table id="courseTable">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Code</th>
+                    <th>Faculty</th>
+                    <th>Students Enrolled</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- dynamic -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Course Form -->
+    <div class="card">
+        <h3>Add / Assign Course</h3>
+
+        <form id="addCourseForm">
+
+            <label>Course Name:</label><br>
+            <input type="text" id="cName" required><br><br>
+
+            <label>Course Code:</label><br>
+            <input type="text" id="cCode" required><br><br>
+
+            <label>Faculty Assigned:</label><br>
+            <select id="cFaculty">
+                <!-- dynamic fill from teachers -->
+            </select><br><br>
+
+            <label>Select Students (Multi-select):</label><br>
+            <select id="cStudents" multiple size="5" style="width:200px;">
+                <!-- dynamic fill from students -->
+            </select><br><br>
+
+            <button type="submit" 
+                style="padding:10px 20px;background:#4cc9f0;color:white;border:none;border-radius:8px;cursor:pointer;">
+                Add Course
+            </button>
+        </form>
+    </div>
+
+    <!-- COURSE DETAILS POPUP -->
+    <div id="courseModal" style="
+        display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.4); justify-content:center; align-items:center;">
+        
+        <div style="background:white;padding:25px;border-radius:10px;width:420px;">
+            <h3>Course Details</h3>
+            <p id="courseModalContent"></p>
+
+            <button onclick="closeCourseModal()" 
+                style="padding:8px 12px;background:#333;color:white;border:none;border-radius:6px;cursor:pointer;">
+                Close
+            </button>
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+/* ----------------------------
+    SAMPLE DATA (load from localStorage)
+----------------------------- */
+
+// Students from student system
+let students = JSON.parse(localStorage.getItem("students")) || [
+    {name:"Rohan Kumar", roll:"21A91A05A1"},
+    {name:"Priya Sharma", roll:"21A91A05A2"},
+    {name:"Akash Varma", roll:"21A91A05A3"},
+    {name:"Harika Devi", roll:"21A91A05A4"},
+    {name:"Sunil Reddy", roll:"21A91A05A5"}
+];
+
+// Teachers from teacher system
+let teachers = JSON.parse(localStorage.getItem("teachers")) || [
+    {name:"Mrs. Anitha Sharma"},
+    {name:"Mr. Mahesh Kumar"},
+    {name:"Dr. Sandeep Reddy"},
+    {name:"Mrs. Keerthi Devi"}
+];
+
+// Courses dynamic list
+let courses = JSON.parse(localStorage.getItem("courses")) || [
+    {
+        course:"Data Structures",
+        code:"CSE202",
+        faculty:"Mrs. Anitha Sharma",
+        students:["Rohan Kumar","Priya Sharma","Akash Varma"]
+    }
+];
+
+function saveCourses(){
+    localStorage.setItem("courses", JSON.stringify(courses));
+}
+
+/* ----------------------------
+    Load Courses Table
+----------------------------- */
+function loadCourses(){
+    const tbody = document.querySelector("#courseTable tbody");
+    tbody.innerHTML = "";
+
+    courses.forEach((c, index)=>{
+        tbody.innerHTML += `
+            <tr>
+                <td>${c.course}</td>
+                <td>${c.code}</td>
+                <td>${c.faculty}</td>
+                <td>${c.students.length} Students</td>
+                <td>
+                    <button onclick="viewCourse(${index})"
+                        style="padding:6px 10px;background:#4cc9f0;color:white;border:none;border-radius:6px;cursor:pointer;">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+/* ----------------------------
+    Fill Faculty Dropdown
+----------------------------- */
+function loadFacultyDropdown(){
+    const ddl = document.getElementById("cFaculty");
+    ddl.innerHTML = "";
+
+    teachers.forEach(t=>{
+        ddl.innerHTML += `<option>${t.name}</option>`;
+    });
+}
+
+/* ----------------------------
+    Fill Students Multi-select
+----------------------------- */
+function loadStudentDropdown(){
+    const ddl = document.getElementById("cStudents");
+    ddl.innerHTML = "";
+
+    students.forEach(s=>{
+        ddl.innerHTML += `<option value="${s.name}">${s.name} (${s.roll})</option>`;
+    });
+}
+
+/* ----------------------------
+    Add New Course
+----------------------------- */
+document.getElementById("addCourseForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let selectedStudents = Array.from(document.getElementById("cStudents").selectedOptions)
+                                .map(o => o.value);
+
+    let newCourse = {
+        course: document.getElementById("cName").value,
+        code: document.getElementById("cCode").value,
+        faculty: document.getElementById("cFaculty").value,
+        students: selectedStudents
+    };
+
+    courses.push(newCourse);
+    saveCourses();
+    loadCourses();
+
+    alert("Course Added Successfully!");
+    this.reset();
+});
+
+/* ----------------------------
+    View Course Popup
+----------------------------- */
+function viewCourse(index){
+    const c = courses[index];
+
+    let studentList = c.students.map(s=>`• ${s}`).join("<br>");
+
+    document.getElementById("courseModalContent").innerHTML = `
+        <strong>Course:</strong> ${c.course}<br>
+        <strong>Code:</strong> ${c.code}<br>
+        <strong>Faculty:</strong> ${c.faculty}<br><br>
+        <strong>Students Enrolled:</strong><br>
+        ${studentList}
+    `;
+
+    document.getElementById("courseModal").style.display = "flex";
+}
+
+function closeCourseModal(){
+    document.getElementById("courseModal").style.display = "none";
+}
+
+/* ----------------------------
+    Initialize Page
+----------------------------- */
+loadCourses();
+loadFacultyDropdown();
+loadStudentDropdown();
+</script>
+
+
+   <!-- CLASSROOM SHIFT – DYNAMIC MANAGEMENT -->
+<div class="card" style="margin-top:30px;">
+    <h3>Classroom Shift Notices</h3>
+
+    <!-- INPUT FORM -->
+    <form id="shiftForm" style="margin-bottom:20px;">
+
+        <label><strong>Date:</strong></label><br>
+        <input type="date" id="shiftDate" required
+               style="padding:8px; margin:5px 0; width:250px;"><br>
+
+        <label><strong>Class & Year:</strong></label><br>
+        <input type="text" id="shiftClass" placeholder="Ex: CSE - A (2nd Year)" required
+               style="padding:8px; margin:5px 0; width:250px;"><br>
+
+        <label><strong>Original Room:</strong></label><br>
+        <input type="text" id="oldRoom" placeholder="Ex: Room 204" required
+               style="padding:8px; margin:5px 0; width:250px;"><br>
+
+        <label><strong>Shifted Room:</strong></label><br>
+        <input type="text" id="newRoom" placeholder="Ex: Room 310" required
+               style="padding:8px; margin:5px 0; width:250px;"><br>
+
+        <label><strong>Reason:</strong></label><br>
+        <input type="text" id="reason" placeholder="Ex: Electrical Work" required
+               style="padding:8px; margin:5px 0; width:350px;"><br>
+
+        <button type="submit"
+                style="margin-top:10px; padding:10px 20px; border:none; 
+                       background:#4cc9f0; color:white; border-radius:8px; cursor:pointer;">
+            Add Notice
+        </button>
+    </form>
+
+    <!-- DISPLAY TABLE -->
+    <table id="shiftTable" style="width:100%; border-collapse:collapse; margin-top:20px;">
+        <tr style="background:#f1f7fb;">
+            <th style="padding:10px; text-align:left;">Date</th>
+            <th style="padding:10px; text-align:left;">Class</th>
+            <th style="padding:10px; text-align:left;">Original Room</th>
+            <th style="padding:10px; text-align:left;">Shifted Room</th>
+            <th style="padding:10px; text-align:left;">Reason</th>
+            <th style="padding:10px; text-align:left;">Action</th>
+        </tr>
+    </table>
+</div>
+
+<script>
+// Load notices from localStorage
+function loadShiftNotices() {
+    let notices = JSON.parse(localStorage.getItem("shiftNotices")) || [];
+    const table = document.getElementById("shiftTable");
+
+    // Clear all except header
+    table.innerHTML = `
+        <tr style="background:#f1f7fb;">
+            <th style="padding:10px;">Date</th>
+            <th style="padding:10px;">Class</th>
+            <th style="padding:10px;">Original Room</th>
+            <th style="padding:10px;">Shifted Room</th>
+            <th style="padding:10px;">Reason</th>
+            <th style="padding:10px;">Action</th>
+        </tr>
+    `;
+
+    notices.forEach((n, index) => {
+        let row = `
+            <tr>
+                <td style="padding:10px;">${n.date}</td>
+                <td style="padding:10px;">${n.className}</td>
+                <td style="padding:10px;">${n.oldRoom}</td>
+                <td style="padding:10px;">${n.newRoom}</td>
+                <td style="padding:10px;">${n.reason}</td>
+                <td style="padding:10px;">
+                    <button onclick="deleteNotice(${index})"
+                            style="background:red; color:white; border:none;
+                                   padding:6px 14px; border-radius:5px; cursor:pointer;">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+        table.innerHTML += row;
+    });
+}
+
+// Delete a notice
+function deleteNotice(index) {
+    let notices = JSON.parse(localStorage.getItem("shiftNotices")) || [];
+    notices.splice(index, 1);
+    localStorage.setItem("shiftNotices", JSON.stringify(notices));
+    loadShiftNotices();
+}
+
+// Add new notice
+document.getElementById("shiftForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let newNotice = {
+        date: document.getElementById("shiftDate").value,
+        className: document.getElementById("shiftClass").value,
+        oldRoom: document.getElementById("oldRoom").value,
+        newRoom: document.getElementById("newRoom").value,
+        reason: document.getElementById("reason").value
+    };
+
+    let notices = JSON.parse(localStorage.getItem("shiftNotices")) || [];
+    notices.push(newNotice);
+
+    localStorage.setItem("shiftNotices", JSON.stringify(notices));
+    loadShiftNotices();
+
+    this.reset();
+});
+
+// Load data when page opens
+loadShiftNotices();
+</script>
+
+    <!-- ANNOUNCEMENTS -->
+    <section id="announcements" class="section">
+        <h2>Announcements</h2>
+
+        <div class="card">
+            <h3>Recent Announcements</h3>
+            <ul>
+                <li>Semester exams start from 12th December.</li>
+                <li>Faculty meeting scheduled for tomorrow at 3 PM.</li>
+                <li>Holiday on December 25th – Christmas.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Actions</h3>
+            <p>• Publish new announcements</p>
+            <p>• Notify students & faculty</p>
+            <p>• Edit or remove announcements</p>
+        </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="reports" class="section">
+        <h2>Reports</h2>
+
+        <div class="card">
+            <h3>Available Reports</h3>
+            <ul>
+                <li>Attendance Reports</li>
+                <li>Marks Summaries</li>
+                <li>Student Performance Charts</li>
+                <li>Faculty Workload Report</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Generate Report</h3>
+            <p>• Download PDF / Excel</p>
+            <p>• Export student analytics</p>
+            <p>• Generate year-wise graphs</p>
+        </div>
+    </section>
+
+</div>
+
+<!-- SWITCH SECTIONS SCRIPT -->
+<script>
+    const items = document.querySelectorAll(".sidebar li");
+    const sections = document.querySelectorAll(".section");
+
+    items.forEach(li => {
+        li.addEventListener("click", () => {
+            sections.forEach(sec => sec.classList.remove("active"));
+            document.getElementById(li.getAttribute("data-section")).classList.add("active");
+        });
+    });
+</script>
+
+</body>
+</html>
